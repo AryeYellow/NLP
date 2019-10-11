@@ -1,5 +1,5 @@
 import pandas as pd
-from jieba import cut
+from jieba3 import cut
 from re import sub
 from collections import Counter
 
