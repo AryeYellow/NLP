@@ -1,3 +1,4 @@
+from hmm import Tokenizer
 from hmm.finalseg.prob_emit import P as emit_P
 start_P = {'B': -0.26268660809250016, 'E': -3.14e+100, 'M': -3.14e+100, 'S': -1.4652633398537678}
 trans_P = {
@@ -49,7 +50,7 @@ def cut_without_dict(sentence):
         yield sentence[nexti:]
 
 
-def cut(sentence):
+def _cut(sentence):
     for word in cut_without_dict(sentence):
         if word not in Force_Split_Words:
             yield word
@@ -58,16 +59,56 @@ def cut(sentence):
                 yield c
 
 
-lcut_without_dict = lambda sentence: list(cut_without_dict(sentence))
-lcut = lambda sentence: list(cut(sentence))
+class HMM(Tokenizer):
 
+    def cut(self, sentence):
+        route = self.calculate(sentence)
+        length = len(sentence)
+        x = 0
+        buf = ''
+        while x < length:
+            y = route[x][1] + 1
+            l_word = sentence[x:y]
+            if y - x == 1:
+                buf += l_word
+            else:
+                if buf:
+                    if len(buf) == 1:
+                        yield buf
+                        buf = ''
+                    else:
+                        for t in _cut(buf):
+                            yield t
+                        buf = ''
+                yield l_word
+            x = y
+        if buf:
+            if len(buf) == 1:
+                yield buf
+            else:
+                for t in _cut(buf):
+                    yield t
+
+    def del_word(self, word):
+        Force_Split_Words.add(word)  # 强制拆词
+        super().del_word(word)
+
+
+lcut_without_dict = lambda sentence: list(cut_without_dict(sentence))
+hmm = HMM.initialize()
+cut = hmm.cut
+lcut = hmm.lcut
+add_word = hmm.add_word
+del_word = hmm.del_word
 
 if __name__ == '__main__':
     text = '柳梦璃C法破阵'
     print('  '.join(cut_without_dict(text)))
+    print('  '.join(cut(text)), end='\n\n')
     emit_P['B']['C'] = -1
     print('  '.join(cut_without_dict(text)))
+    print('  '.join(cut(text)), end='\n\n')
     emit_P['S']['梦'] = -1
-    print('  '.join(cut(text)))
-    Force_Split_Words.add('破阵')
-    print('  '.join(cut(text)))
+    del_word('破阵')
+    print('  '.join(cut_without_dict(text)))
+    print('  '.join(cut(text)), end='\n\n')
