@@ -8,7 +8,7 @@ X = 'X'
 
 class Tokenizer:
     re_eng = re.compile('[a-zA-Z]+')
-    re_m = re.compile('[0-9]+')  # jieba数词标注为m
+    re_m = re.compile('[+-]?([0-9]+|[0-9]+[./~-][0-9]+)[%π]?')  # jieba数词标注为m
 
     def __init__(self, word2freq, total, word2flag, max_len=16):
         self.word2freq = word2freq
@@ -118,6 +118,11 @@ class Tokenizer:
             self.total -= original_freq
             del self.word2flag[word]
 
+    def get_flags(self, words):
+        if isinstance(words, str):
+            words = self.cut_without_hmm(words)
+        return [self.word2flag.get(word, X) for word in words]
+
 
 # 实例化
 tokenizer = Tokenizer.initialize()
@@ -126,6 +131,7 @@ lcut = tokenizer.lcut
 add_word = tokenizer.add_word
 del_word = tokenizer.del_word
 cut_without_hmm = tokenizer.cut_without_hmm
+get_flags = tokenizer.get_flags
 
 
 if __name__ == '__main__':
@@ -133,6 +139,8 @@ if __name__ == '__main__':
     print('  '.join(cut_without_hmm(text)))
     print('  '.join(cut(text)))
     add_word('dream-01')
-    add_word('梦璃')
+    add_word('梦璃', flag='nr')
     del_word('食梦')
     print('  '.join(cut(text)))
+    print(tokenizer.word2freq['梦璃'])
+    print(get_flags('梦璃提升1.25%'))
