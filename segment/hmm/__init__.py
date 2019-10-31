@@ -118,11 +118,6 @@ class Tokenizer:
             self.total -= original_freq
             del self.word2flag[word]
 
-    def get_flags(self, words):
-        if isinstance(words, str):
-            words = self.cut_without_hmm(words)
-        return [self.word2flag.get(word, X) for word in words]
-
 
 # 实例化
 tokenizer = Tokenizer.initialize()
@@ -131,7 +126,6 @@ lcut = tokenizer.lcut
 add_word = tokenizer.add_word
 del_word = tokenizer.del_word
 cut_without_hmm = tokenizer.cut_without_hmm
-get_flags = tokenizer.get_flags
 
 
 if __name__ == '__main__':
@@ -143,4 +137,3 @@ if __name__ == '__main__':
     del_word('食梦')
     print('  '.join(cut(text)))
     print(tokenizer.word2freq['梦璃'])
-    print(get_flags('梦璃提升1.25%'))
