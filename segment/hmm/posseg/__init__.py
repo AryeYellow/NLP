@@ -1,4 +1,4 @@
-from hmm import tokenizer, X
+from hmm import Tokenizer, X
 from hmm.posseg.char_state_tab import P as char_state_tab_P
 from hmm.posseg.prob_start import P as start_P
 from hmm.posseg.prob_trans import P as trans_P
@@ -77,14 +77,10 @@ def cut_without_dict(sentence):
         yield Word(sentence[nexti:], pos_list[nexti][1])
 
 
-class POSTokenizer:
-
-    def __init__(self):
-        self.tokenizer = tokenizer
-        self.word2flag = self.tokenizer.word2flag
+class POSTokenizer(Tokenizer):
 
     def cut(self, sentence):
-        route = self.tokenizer.calculate(sentence)
+        route = self.calculate(sentence)
         x = 0
         buf = ''
         N = len(sentence)
@@ -114,14 +110,14 @@ class POSTokenizer:
         return list(self.cut(sentence))
 
     def cut_without_hmm(self, sentence):
-        for word in self.tokenizer.cut_without_hmm(sentence):
+        for word in super().cut(sentence):
             yield Word(word, self.word2flag.get(word, X))
 
     def lcut_without_hmm(self, sentence):
         return list(self.cut_without_hmm(sentence))
 
 
-tk = POSTokenizer()
+tk = POSTokenizer.initialize()
 cut = tk.cut
 lcut = tk.lcut
 cut_without_hmm = tk.cut_without_hmm
@@ -130,7 +126,10 @@ lcut_without_hmm = tk.lcut_without_hmm
 
 if __name__ == '__main__':
     text = '柳梦璃施法入梦'
+    print(lcut_without_hmm(text))
     print(list(cut_without_dict(text)))
-    emit_P[('E', 'v')]['梦'] = -1
+    emit_P[('E', 'v')]['梦'] = -.1
     print(list(cut_without_dict(text)))
-
+    tk.del_word('施法')
+    emit_P[('S', 'v')]['施'] = -1
+    print(lcut(text))
