@@ -133,7 +133,6 @@ if __name__ == '__main__':
     print('  '.join(cut_without_hmm(text)))
     print('  '.join(cut(text)))
     add_word('dream-01')
-    add_word('梦璃', flag='nr')
+    add_word('梦璃')
     del_word('食梦')
     print('  '.join(cut(text)))
-    print(tokenizer.word2freq['梦璃'])
