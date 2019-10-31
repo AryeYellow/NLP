@@ -8,7 +8,7 @@ X = 'X'
 
 class Tokenizer:
     re_eng = re.compile('[a-zA-Z]+')
-    re_m = re.compile('[+-]?([0-9]+|[0-9]+[./~-][0-9]+)[%π]?')  # jieba数词标注为m
+    re_m = re.compile('[0-9]+')  # jieba数词标注为m
 
     def __init__(self, word2freq, total, word2flag, max_len=16):
         self.word2freq = word2freq
