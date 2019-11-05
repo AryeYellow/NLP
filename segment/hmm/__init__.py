@@ -100,13 +100,9 @@ class Tokenizer:
     def lcut(self, sentence):
         return list(self.cut(sentence))
 
-    def add_word(self, word, freq=0, flag=X):
-        if freq > 0:
-            self.del_word(word)
-        else:
-            freq = 1
+    def add_word(self, word, freq=1, flag=NA, add=True):
         original_freq = self.word2freq.get(word, 0)
-        self.word2freq[word] = original_freq + freq
+        self.word2freq[word] = original_freq + freq if add else freq
         self.total = self.total - original_freq + self.word2freq[word]
         self.word2flag[word] = flag
 
