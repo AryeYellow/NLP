@@ -14,13 +14,11 @@
 ^[\u4e00-\u9fa5]{2,3} \d nz\n
 ^[\u4e00-\u9fa5]{1,} \d nrt\n
 """
-import pandas as pd
+import pandas as pd, pickle
 from os import path
-import pickle
 PATH_JIEBA = path.join(path.dirname(__file__), 'dict.txt')
-PATH_COMPARTMENT = path.join(path.dirname(__file__), 'compartment.xlsx')  # 中国行政区划
+PATH_DISTRICT = path.join(path.dirname(__file__), 'district.txt')  # 中国行政区划
 GET_FREQ = lambda x: {1: 2000, 2: 300, 3: 40, 4: 5}.get(x, 2)
-
 
 # 读
 
@@ -30,13 +28,33 @@ def txt2df(fname=PATH_JIEBA, sep=' ', names=None):
     return pd.read_table(fname, sep, names=names, header=None)
 
 
-def sheet2df(fname=PATH_COMPARTMENT, sheet_name=0):
+def sheet2df(fname, sheet_name=0):
     return pd.read_excel(fname, sheet_name=sheet_name)
 
 
 def pickle2dt(fname):
     with open(fname, 'rb') as f:
         return pickle.load(f)
+
+
+def txt2ls(fname=PATH_DISTRICT):
+    with open(fname, encoding='utf-8') as f:
+        return f.read().strip().split('\n')
+
+
+def read_district():
+    flags = {0: 'nation', 1: 'province', 2: 'city', 3: 'district'}
+    code2region = dict()
+    for line in txt2ls():
+        code, region = line.split(',')
+        code2region[code] = region
+        level = int(len(code) / 2)
+        flag = flags[level]
+        if level < 2:
+            superior = '中央' if level == 1 else ''
+        else:
+            superior = code2region[code[:level * 2 - 2]]
+        yield code, region, level, flag, superior
 
 
 # 处理
@@ -104,4 +122,3 @@ def ls2sheet(ls, columns=['word', 'freq'], fname='frequency'):
 
 if __name__ == '__main__':
     print(txt2df())
-    print(sheet2df())

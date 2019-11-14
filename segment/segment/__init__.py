@@ -130,12 +130,12 @@ class Tk(Tokenizer):
                 print(sentence[max(0, x-half):x] + word + sentence[y:y+half])
         print(self.re_ls.pop())
 
-    def highlight_yield(self, sentence, word_set, wrap='【%s】', length=85):
-        word_set = {word_set} if isinstance(word_set, str) else word_set
-        half = (length - max(len(w) for w in word_set)) // 2 - 1
+    def highlight_yield(self, sentence, lexicon, wrap='【%s】', length=85):
+        lexicon = {lexicon} if isinstance(lexicon, str) else lexicon
+        half = (length - max(len(w) for w in lexicon)) // 2 - 1
         s = sentence.replace('【', ' ').replace('】', ' ')
         for l_word, x, y in self.cut_with_position(s):
-            if l_word in word_set:
+            if l_word in lexicon:
                 yield l_word, s[max(0, x-half):x] + wrap % l_word + s[y:y+half]
 
 
